@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<jaxb:bindings
+        xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+        xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc"
+        jaxb:extensionBindingPrefixes="xjc"
+        xmlns:annox="http://annox.dev.java.net"
+        version="2.1">
+
+    <jaxb:globalBindings>
+        <xjc:javaType adapter="ca.denniscourneyea.lib.jaxb.DateAdapter"
+                      name="java.time.LocalDate"
+                      xmlType="xs:date"/>
+        <xjc:javaType adapter="ca.denniscourneyea.lib.jaxb.DateTimeAdapter"
+                      name="java.time.Instant"
+                      xmlType="xs:dateTime"/>
+        <xjc:javaType adapter="ca.denniscourneyea.lib.jaxb.TimeAdapter"
+                      name="java.time.Instant"
+                      xmlType="xs:time"/>
+    </jaxb:globalBindings>
+
+    <jaxb:bindings schemaLocation="service-1.0.xsd">
+        <jaxb:bindings node="//xs:complexType[@name='Response']/*/xs:element[@type='xsd:dateTime']">
+            <annox:annotate target="field">
+                <annox:annotate annox:class="com.google.gson.annotations.JsonAdapter" ignoreunknown="true">ca.denniscourneyea.lib.gson.InstantSerializer</annox:annotate>
+            </annox:annotate>
+        </jaxb:bindings>
+    </jaxb:bindings>
+
+</jaxb:bindings>

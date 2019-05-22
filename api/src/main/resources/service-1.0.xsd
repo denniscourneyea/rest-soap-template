@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<!-- XSD Versioning Strategy
+
+When making making backward compatible changes to this schema, increment the minor version (x.y to x.y+1) in both the
+filename and schema element version attribute.
+
+When making backward incompatible changes to this schema, increment the major version (x.y to x+1.0) in both the filename
+and schema element version attribute. Additionally increment the version number (.../vX/... to .../vX+1/...) embedded in
+the targetNamespace and xmlns attributes of the schema element.
+
+Renaming the XSD file allows the current version and all previous versions to remain available for as long as desired,
+and applications can check the version attribute if they need to implement different functionality. Since neither the
+filename nor version attribute are checked by XML validators, since these changes aren't enforced, and thus will still
+allow applications using different but compatible versions to interoperate.
+
+Changes to the target namespace are enforced, and thus will prevent integrating applications using incompatible versions
+of this schema. -->
+<xsd:schema
+        targetNamespace="http://www.denniscourneyea.ca/service/api/v1"
+        xmlns="http://www.denniscourneyea.ca/service/api/v1"
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+        version="1.0">
+
+    <xsd:element name="statusRequest">
+        <xsd:complexType>
+            <xsd:complexContent>
+                <xsd:extension base="Request"/>
+            </xsd:complexContent>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="statusResponse">
+        <xsd:complexType>
+            <xsd:complexContent>
+                <xsd:extension base="Response">
+                    <xsd:sequence>
+                        <xsd:element name="version" type="xsd:string" minOccurs="1" maxOccurs="1" nillable="false"/>
+                    </xsd:sequence>
+                </xsd:extension>
+            </xsd:complexContent>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:complexType name="Request" abstract="true">
+        <xsd:sequence/>
+    </xsd:complexType>
+
+    <xsd:complexType name="Response" abstract="true">
+        <xsd:sequence>
+            <xsd:element name="timestamp" type="xsd:dateTime" minOccurs="1" maxOccurs="1" nillable="false"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+</xsd:schema>
