@@ -4,7 +4,7 @@
     
     <groupId>ca.denniscourneyea.rest-soap-template</groupId>
     <artifactId>parent</artifactId>
-    <version>0.0.5-SNAPSHOT</version>
+    <version>0.0.4</version>
     <packaging>pom</packaging>
     <name>${baseArtifactName}-${project.artifactId}</name>
     <description>Web service project template using Spring MVC and WS to support both REST (JSON + XML) and SOAP API's.</description>
