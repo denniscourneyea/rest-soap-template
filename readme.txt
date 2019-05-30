@@ -1,37 +1,41 @@
-This project is a simple status service which returns minimal information about
-the running application. The primary purpose of the application is to serve as
-a template or starter project for micro-services built using Spring MVC (rest
-services supporting JSON and XML requests and responses) and Spring WS (SOAP
-services with XML requests and responses).
+This project is a simple status service which returns minimal information about the running
+application. The primary purpose of the application is to serve as a template or starter project
+for web services built using Spring MVC (rest services supporting JSON and XML) and Spring WS
+(SOAP). I've included SOAP support to demonstrate both:  sharing code between multiple
+implementation technologies, and implementing SOAP in Java as elegantly as possible.
 
-SOAP isn't ideal; however, it is required in some legacy environments and once
-the infrastructure is in place maintaining support isn't much of a burden
-beyond maintaining XML support in the REST services. So I've included it to
-demonstrate both:  sharing code between multiple implementation technologies,
-and implementing SOAP in Java as elegantly as possible.
+Features:
+
+* Contract first service specification using an XSD file
+* REST API supporting both XML and JSON and data
+* SOAP API
+* Common implementation shared by REST and SOAP API's
+* Maven integration with Gitflow and Docker
+    * Gitflow plugin updates Maven versions while performing a Gitflow release
+    * Optionally builds a Docker image running the application in Tomcat on Linux
+    * Integrations can be used manually or automated via scripts or a build server
+* Jenkins build server integration
+    * Jenkins build file include in source code so changes in both can be easily synchronized
+    * Performs a gitflow release as part of the build
+    * Generates 2 deployable artifacts
+        * Standard WAR file
+        * Docker image file
+    * Publishes both artifacts to a Nexus repository if, and only if, all tests pass
 
 Requirements:
 
 * Java JDK 1.8 or newer
 * git version control system
-* gitflow branching strategy (see below)
+* use of the gitflow branching strategy (see below)
 * Write access to a maven artifact repository
-    * Repository used (configurable)
-        * default = Sonatype Nexus 3
-    * Maven central mirror (optional)
-        * default = http://localhost:8081/repository/maven/
-    * Snapshot repository (configurable)
-        * default = http://localhost:8081/repository/maven-snapshots/
-    * Release repository (configurable)
-        * default = http://localhost:8081/repository/maven-releases/
-
-Violating these requirements may require to changes to:  the Jenkins build,
-possibly the source code and dependency versions, and may invalidate some or
-all of the subsequent instructions in this readme.
+    * Default repository is Sonatype Nexus 3\
+    * Default Maven central mirror URL = http://localhost:8081/repository/maven/
+    * Default snapshot repository URL = http://localhost:8081/repository/maven-snapshots/
+    * Default release repository URL = http://localhost:8081/repository/maven-releases/
 
 To extend this project:
 
-* Clone it into a new git repository
+* Fork it into a new git repository
 * Update the project parent pom.xml as required for your environment
     * SCM section
         * Replace this repository with your new clone of it
@@ -59,20 +63,14 @@ To extend this project:
     * Create a REST controller class in the rest subpackage
     * Create a SOAP endpoint class in the soap subpackage
 
-The existing status service implementation is intended to provide an example of
-how your services should be implemented. I am assuming that developers forking
-this project will remove any pieces (SOAP, REST, XML and/or JSON) which are not
-desired for their project.
-
 
     User Specific Maven Settings
     ----------------------------
 
-Project settings are stored in the project POM files; however, user specific
-settings (like ID's and passwords) have to be stored in a private location. For
-Maven this is the ~/.m2/settings.xml file. Here is the minimal settings.xml
-file required for all Maven functionality to work as expected with the default
-project POM files:
+Project settings are stored in the project POM files; however, user specific settings (like ID's
+and passwords) have to be stored in a private location. For Maven this is the ~/.m2/settings.xml
+file. Here is the minimal settings.xml file required for all Maven functionality to work as
+expected with the default project POM files:
 
     <settings
         xmlns="http://maven.apache.org/SETTINGS/1.0.0"
@@ -102,22 +100,21 @@ project POM files:
         </mirrors>
     </settings>
 
-Usernames and passwords will have to be changed to match your environment. If
-you've edited the repositories and/or distributionManagement sections of the
-POM files it may be necessary to change id values, add new servers, and/or add
-new repositories. It may be possible to delete to omit some or all of the
-server and mirror elements.
+Usernames and passwords will have to be changed to match your environment. If you've edited the
+repositories and/or distributionManagement sections of the POM files it may be necessary to change
+id values, add new servers, and/or add new repositories. It may be possible to delete to omit some
+or all of the server and mirror elements.
 
 
     Git and Git Flow
     ----------------
 
-This project is configured to use Git for source code management with the Git
-Flow branching strategy. To summarize Git Flow:
+This project is configured to use Git for source code management with the Git Flow branching
+strategy. To summarize Git Flow:
 
 * There are two main branches:  master and develop
 * The master branch should be production ready and have a release version
-* Developers commit to the develop branch, which should have a snapshot version
+* New development is done in the develop branch, which should have a snapshot version
 * When code is deemed ready for release:
     * Changes are merged to master
     * Versions are incremented in both master and develop
@@ -125,56 +122,58 @@ Flow branching strategy. To summarize Git Flow:
 * Other branches will be short lived:
     * Feature branches:
         * Branch from and merge back into develop
-        * Name must not be: master, develop, release-*, or hotfix-*
+        * Naming convention
+            * Name must not be:  master, develop, release*, or hotfix*
+            * Usually named feature/*
         * Used to isolate potentially disruptive work in progress
     * Release branches:
         * Branch from develop and merge back into both develop and master
-        * Naming convention: release-*
+        * Naming convention: release/*
         * These are temporary branches used during release process
     * Hotfix branches:
         * Branch from master and merge back into both develop and master
-        * Naming convention: hotfix-*
+        * Naming convention: hotfix/*
         * Used for urgent fixes to problems discovered in production
 
-The Maven Git Flow plugin automates these branching operations. For additional
-information, see the following websites:
+The Maven Git Flow plugin integrates these branching operations with Maven. It is primarily used in
+the release process to automatically increment the Maven version numbers, allowing seamless
+integration of Maven, Gitflow, and a build server like Jenkins (see below). It can also be used to
+create and merge feature and hotfix branches. Unfortunately the plugin supports only one active
+hotfix branch and has been abandoned by its creators.
+
+For additional information, see:
 
     https://git-scm.com/
-    http://blogs.atlassian.com/2013/05/maven-git-flow-plugin-for-better-releases/
     http://nvie.com/posts/a-successful-git-branching-model/
-
-The Git Flow strategy and plugin will primarily impact the release process;
-however, they should be used whenever creating or merging branches.
+    http://blogs.atlassian.com/2013/05/maven-git-flow-plugin-for-better-releases/
+    https://medium.com/shark-bytes/jgit-flow-and-parallel-hotfixes-4efc5c0f43ed
 
 
     Manual Release Process
     ----------------------
 
-Clone a fresh copy of the Git repository. This isn't strictly necessary but
-will make cleanup easier and more reliable if anything goes wrong during the
-release process:
+First, clone a fresh copy of the Git repository. This isn't strictly necessary but will make
+cleanup easier and more reliable if anything goes wrong during the release process:
 
     $ git clone git@github.com:denniscourneyea/rest-soap-template.git
 
-Next build the project and perform the release locally:
+Next, build the project and perform the release locally:
 
     $ mvn jgitflow:release-start jgitflow:release-finish
 
-If this completes successfully for all modules, deploy the build artifact(s) to
-any and all required test environments and run any required automated or manual
-tests in those environments. If any errors occur during the build or subsequent
-integration testing, delete the newly cloned working copy of the repository,
-fix the problem(s), then try again.
+If this completes successfully for all modules, deploy the build artifact(s) to any and all
+required test environments and run any required automated or manual tests in those environments.
 
-Otherwise, if the build and integration tests succeed, push the release to the
-shared git repository:
+If any errors occur during the build or subsequent integration testing, delete the newly cloned
+working copy of the repository, fix the problem(s), then try again. Otherwise, if the build and
+integration tests succeed, push the release to the shared git repository:
 
     $ git push --all
     $ git push --tags
     
-Finally, if there is an artifact repository, copy the build artifacts to it.
-This could be done in various ways like using a CI/CD server plugin or manually
-copying the files. It can also be done, somewhat awkwardly, with Maven:
+Finally, if you have an artifact repository, copy the build artifacts to it. This could be done in
+various ways like using a CI/CD server plugin or manually copying the files. It can also be done,
+somewhat awkwardly, with Maven:
 
     $ mvn deploy:deploy-file
         -DpomFile=pom.xml
@@ -192,68 +191,64 @@ copying the files. It can also be done, somewhat awkwardly, with Maven:
         -DrepositoryId=...
         -Durl=...
 
-Maven deploy (mvn deploy) should be avoided because it re-runs the build. Thus
-the artifacts uploaded to repositories would not be the same ones tested
-earlier.
+Maven deploy (mvn deploy) should be avoided because it re-runs the build. Thus the artifacts
+uploaded to repositories would not be the same ones tested earlier.
 
 
     Docker Integration
     ------------------
 
-Maven has been configured to optionally build a docker image which serves the
-implemented service(s). To generate a Docker image using the last successful
-build, execute the following command:
+Maven has been configured to optionally build a docker image which serves the implemented
+service(s). To generate a Docker image using the last successful build, execute the following
+command:
 
     $ mvn docker:build
 
-If a Docker registry is configured in Maven, the following command will build
-the image and publish it to the registry:
+If a Docker registry is configured in Maven, the following command will build the image and
+publish it to the registry:
 
     $ mvn docker:push
 
-This functionality is primarily intended for developers to build snapshot
-images for local testing, with the added conveniences of integrating the Maven
-version and Docker image tag, and automatically using a shared private registry
-instead of always defaulting to Docker Hub. It could also be used by a build
-server that lacks it's own plugins for Docker integration.
+This functionality is primarily intended for developers to build snapshot images for local testing,
+with the added conveniences of integrating the Maven version and Docker image tag, and
+automatically using a shared private registry instead of always defaulting to Docker Hub. It could
+also be used by a build server that lacks it's own plugins for Docker integration.
 
 
     Continuous Integration (CI) / Continuous Delivery (CD)
     ------------------------------------------------------
 
-In a CI environment a build server will automate both snapshot builds on the
-develop branch and release builds (see above). Snapshot builds should be run
-frequently - at least daily, and ideally on every push/commit to a shared code
-repository. Release builds would be run infrequently, usually triggered
-manually after receiving the required approvals and sign offs.
+In a CI environment a build server will automate both snapshot builds on the develop branch and
+release builds (see above). Snapshot builds should be run frequently - at least daily, and ideally
+on every push/commit to the shared code repository. Release builds would be run infrequently,
+usually triggered manually after receiving the required approvals and sign offs.
 
-In a CD environment, snapshot builds of the develop branch would be run only on
-developer workstations, while every build server build that successfully
-completes it's automated test suite(s) should be a release, and either: deployed
-to production immediately, or (if management approvals and/or additional manual
-testing are required) left to await a manually triggered deployment. Thus,
-release builds would be run frequently - again, at least daily, and ideally on
-every push/commit to the shared code repository.
+In a CD environment, snapshot builds of the develop branch would be run only on developer
+workstations, while every build server build that successfully completes its automated tests should
+be a release, and either:  deployed to production immediately, or (if management approvals and/or
+additional manual testing are required) left to await a manually triggered deployment. Thus,
+release builds would be run frequently - again, at least daily, and ideally on every push/commit to
+the shared code repository.
 
 
     Jenkins Integration
     -------------------
 
-Jenkins is a popular CI/CD server that supports storing and managing it's build
-pipeline alongside the application source code. This project includes a
-Jenkinsfile that:
+Jenkins is a popular CI/CD server that supports storing and managing it's build definition
+alongside the application source code. This project includes a Jenkinsfile that:
 
 * Defines a Jenkins pipeline build
 * Supports both Unix and Windows servers (the former is more thoroughly tested)
 * Performs a gitflow release as part of the build for use in CD environments
-* Publishes and deploys artifacts if, and only if, all tests pass
+* Generates both a standard WAR file and a Docker image file
+* Publishes both artifacts to a Nexus repository if, and only if, all tests pass
 
-Since this is a template project with trivial functionality, and every
-deployment environment will be different, the integration test and deployment
-stages are placeholders which can be customized for your environment.
+Since this is a template project with trivial functionality, and every deployment environment will
+be different, the integration test and deployment stages are placeholders which can be customized
+for your application annd environment.
 
-To use this Jenkinsfile you will have to ensure that the following non-default
-plugins are installed on your Jenkins server:
+To use this Jenkinsfile you will have to ensure that the following non-default plugins are
+installed on your Jenkins server:
 
 * Docker Plugin
 * Git Plugin
@@ -261,8 +256,8 @@ plugins are installed on your Jenkins server:
 * Pipeline Plugin
 * Pipeline Utility Steps
 
-This Jenkins file is designed to be used with the Jenkins "Pipeline" project
-type. In Jenkins create a build with the following settings:
+This Jenkins file is designed to be used with the Jenkins "Pipeline" project type. In Jenkins
+create a build with the following settings:
 
 * Definition = Pipeline script from SCM
 * SCM = Git
@@ -273,35 +268,36 @@ type. In Jenkins create a build with the following settings:
 * Script path = Jenkinsfile
 * Lightweight checkout = checked
 
-The Jenkins Git Plugin must be used to read the Jenkins file; however, this
-executes "git init" followed by "git fetch" instead of a standard "git clone".
-Unfortunately this breaks the Maven gitflow plugin; therefore, the Jenkins file
-must clear the workspace and run it's own "git clone". A sparse clone is used
-above to minimize this inefficiency.
+The Jenkins Git Plugin must be used to read the Jenkins file; however, this executes "git init"
+followed by "git fetch" instead of a standard "git clone". Unfortunately this breaks the Maven
+gitflow plugin; therefore, the Jenkins file must clear the workspace and run it's own "git clone".
+A sparse clone is used above to minimize this inefficiency.
 
-There is one more gotcha. Jenkins security will block the execution of several
-methods in the script, the following entries will have to be added to the
-"Signatures already approved" list on the "In-process Script Approval" screen
-under Manage Jenkins:
+There is one more gotcha. Jenkins security will block the execution of several methods in the
+script, the following entries will have to be added to the "Signatures already approved" list on
+the "In-process Script Approval" screen under Manage Jenkins:
 
 * method org.apache.maven.model.Model getVersion
 * method java.util.Properties getProperty java.lang.String
 
-Unfortunately there is no way to whitelist them before running a build. Instead
-it is necessary to run a build, wait for it to fail, then navigate to the
-approval screen and approve the first method. This has to be repeated for each
-blocked method until the build eventually succeeds.
+Unfortunately there is no way to whitelist them before running a build. Instead it is necessary to
+run a build, wait for it to fail, then navigate to the approval screen and approve the first
+method. This will have to be repeated for each blocked method until the build succeeds.
 
 
     TODO
     ----
 
-* Update dependencies
-* Add automated integration tests
+* Consider alternatives to the abandoned jgitflow-maven-plugin plugin
+    * https://gitlab.com/oyvindwe/jgit-flow
+    * https://github.com/aleksandr-m/gitflow-maven-plugin
+    * https://github.com/egineering-llc/gitflow-helper-maven-plugin
+    * https://plugins.jenkins.io/gitflow
 * Add more elements to status response, for example:
     * Memory utilization (ideally peak value or a utilization graph)
     * CPU utilization (ideally peak value or a utilization graph)
     * Uptime
+* Add automated integration tests
 * Implement client libraries for REST/JSON, REST/XML, and SOAP
 * Move JAXB adapter classes into their own project so they can be reused in other projects
 * Create adapter for XSD duration type (combines java.time.Duration & java.time.Period)
