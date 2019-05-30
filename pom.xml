@@ -81,6 +81,7 @@
                         <noDeploy>true</noDeploy>
                     </configuration>
                     <dependencies>
+                        <!-- Must use newer than default version to support new SSH algorithm required by Github -->
                         <dependency>
                             <groupId>com.jcraft</groupId>
                             <artifactId>jsch</artifactId>
